@@ -52,7 +52,8 @@ def main():
     url = st.text_input("YouTube URL:")
     format_type = st.selectbox("Select Format:", ["mp4", "mp3"])
     quality = st.selectbox("Select Quality:", ["best", "1080p", "720p", "480p", "320kbps", "192kbps", "128kbps", "64kbps"])
-    output_dir = st.text_input("Output Directory:", value="./downloads")  # Use a Linux-friendly default
+    # Remove output_dir input from GUI, use a fixed directory
+    output_dir = "./downloads"  # Use a Linux-friendly default
 
     progress_bar = st.progress(0, text="Waiting to start...")
 
@@ -85,6 +86,7 @@ def main():
                         with open(latest_file, "rb") as f:
                             file_bytes = f.read()
                         mime = "video/mp4" if format_type == "mp4" else "audio/mpeg"
+                        st.info("Your file is ready! Click the button below to download.")
                         st.download_button(
                             label=f"Download {file_name}",
                             data=file_bytes,
