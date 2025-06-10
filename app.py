@@ -1,6 +1,7 @@
 import streamlit as st
 import yt_dlp
 import os
+import glob
 from datetime import datetime
 
 # Download video function
@@ -75,6 +76,21 @@ def main():
                         st.toast("Download completed!", icon="✅")
                     except Exception:
                         pass
+
+                    # Find the most recent file in the output_dir
+                    files = glob.glob(os.path.join(output_dir, '*'))
+                    if files:
+                        latest_file = max(files, key=os.path.getctime)
+                        file_name = os.path.basename(latest_file)
+                        with open(latest_file, "rb") as f:
+                            file_bytes = f.read()
+                        mime = "video/mp4" if format_type == "mp4" else "audio/mpeg"
+                        st.download_button(
+                            label=f"Download {file_name}",
+                            data=file_bytes,
+                            file_name=file_name,
+                            mime=mime
+                        )
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
         else:
