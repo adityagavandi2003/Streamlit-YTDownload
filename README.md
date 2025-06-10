@@ -2,7 +2,7 @@
 
 YouTube Downloader Streamlit is a simple and user-friendly application that allows users to download videos from YouTube. Built using Streamlit, this application provides an intuitive interface for downloading videos in various formats and qualities.
 
-[YouTube Downloader]([https://www.python.org/downloads/](https://youtubetvideodownloader.streamlit.app/)).
+[YouTube Downloader]([https://www.python.org/downloads/](https://youtubetvideodownloader.streamlit.app/)
 ## Features
 
 - Download videos in MP4 or MP3 format.
