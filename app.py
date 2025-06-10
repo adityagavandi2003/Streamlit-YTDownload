@@ -3,9 +3,6 @@ import yt_dlp
 import os
 from datetime import datetime
 
-# FFmpeg path configuration
-FFMPEG_PATH = r"C:\ffmpeg\bin\ffmpeg.exe"
-
 # Download video function
 def download_video(url, format_type, quality, output_dir, progress_callback=None):
     # Ensure output directory exists
@@ -20,7 +17,6 @@ def download_video(url, format_type, quality, output_dir, progress_callback=None
         }
         ydl_format = quality_map.get(quality, "bestvideo+bestaudio/best")
     else:  # mp3
-        # For audio, select best audio or restrict by abr if possible
         audio_quality_map = {
             "320kbps": "bestaudio[abr<=320]",
             "192kbps": "bestaudio[abr<=192]",
@@ -42,10 +38,6 @@ def download_video(url, format_type, quality, output_dir, progress_callback=None
             'preferredquality': quality.replace('kbps', ''),
         }]
 
-    if os.path.exists(FFMPEG_PATH):
-        ydl_opts['ffmpeg_location'] = FFMPEG_PATH
-
-    # Add progress hook if provided
     if progress_callback:
         ydl_opts['progress_hooks'] = [progress_callback]
 
@@ -59,7 +51,7 @@ def main():
     url = st.text_input("YouTube URL:")
     format_type = st.selectbox("Select Format:", ["mp4", "mp3"])
     quality = st.selectbox("Select Quality:", ["best", "1080p", "720p", "480p", "320kbps", "192kbps", "128kbps", "64kbps"])
-    output_dir = st.text_input("Output Directory:", value=r"D:\youtube")
+    output_dir = st.text_input("Output Directory:", value="./downloads")  # Use a Linux-friendly default
 
     progress_bar = st.progress(0, text="Waiting to start...")
 
@@ -79,7 +71,6 @@ def main():
                 try:
                     download_video(url, format_type, quality, output_dir, progress_callback=progress_hook)
                     st.success("Download completed successfully!")
-                    # Show browser notification (Streamlit 1.23+)
                     try:
                         st.toast("Download completed!", icon="✅")
                     except Exception:
