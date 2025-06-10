@@ -6,17 +6,24 @@ from datetime import datetime
 
 # Download video function
 def download_video(url, format_type, quality, output_dir, progress_callback=None):
-    # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    # Map UI quality to yt_dlp format string
     if format_type == 'mp4':
         quality_map = {
-            "best": "bestvideo+bestaudio/best",
-            "1080p": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
-            "720p": "bestvideo[height<=720]+bestaudio/best[height<=720]",
-            "480p": "bestvideo[height<=480]+bestaudio/best[height<=480]",
+            "best": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "1080p": "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]/best[height<=1080]",
+            "720p": "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]/best[height<=720]",
+            "480p": "bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4][height<=480]/best[height<=480]",
         }
-        ydl_format = quality_map.get(quality, "bestvideo+bestaudio/best")
+        ydl_format = quality_map.get(quality, "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best")
+        ydl_opts = {
+            'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+            'format': ydl_format,
+        }
+        # Add postprocessor to convert to mp4 if not already
+        ydl_opts['postprocessors'] = [{
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4'
+        }]
     else:  # mp3
         audio_quality_map = {
             "320kbps": "bestaudio[abr<=320]",
@@ -26,18 +33,15 @@ def download_video(url, format_type, quality, output_dir, progress_callback=None
             "best":    "bestaudio/best"
         }
         ydl_format = audio_quality_map.get(quality, "bestaudio/best")
-
-    ydl_opts = {
-        'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
-        'format': ydl_format,
-    }
-
-    if format_type == 'mp3':
-        ydl_opts['postprocessors'] = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': quality.replace('kbps', ''),
-        }]
+        ydl_opts = {
+            'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+            'format': ydl_format,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': quality.replace('kbps', ''),
+            }]
+        }
 
     if progress_callback:
         ydl_opts['progress_hooks'] = [progress_callback]
